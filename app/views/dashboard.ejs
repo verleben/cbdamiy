@@ -1,0 +1,115 @@
+<h2>Dashboard</h2>
+
+<div class="dashboard-stats">
+  <div class="stat-card">
+    <h3>Total Routes</h3>
+    <p class="stat-value"><%= routes.length %></p>
+  </div>
+  <div class="stat-card">
+    <h3>Recent Callbacks</h3>
+    <p class="stat-value"><%= recentCallbacks.length %></p>
+  </div>
+</div>
+
+<div class="section">
+  <h3>Active Callback Routes</h3>
+  <% if (routes.length === 0) { %>
+    <p class="empty-state">No routes configured yet. <a href="/routes">Add a route</a> to start receiving callbacks.</p>
+  <% } else { %>
+    <div class="hostname-display form-group">
+      <strong>Base URL:</strong> <input type="text" class="form-control" value="http://<%= hostname %>:<%= port %>" style="width:30%" readonly/>
+    </div>
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th style="width: 50px;"></th>
+            <th>Path</th>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Created</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% routes.forEach(route => { %>
+            <tr>
+              <td>
+                <button
+                  class="btn-copy"
+                  onclick="copyToClipboard('http://<%= hostname %>:<%= port %>/callback<%= route.path %>')"
+                  title="Copy full URL">
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                    <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/>
+                    <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/>
+                  </svg>
+                </button>
+              </td>
+              <td><code>/callback<%= route.path %></code></td>
+              <td><%= route.name %></td>
+              <td><%= route.description || '-' %></td>
+              <td><%= moment(route.created_at || route.createdAt).tz(timezone).format('YYYY-MM-DD HH:mm:ss') %></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</div>
+
+<script>
+// Copy to Clipboard
+function copyToClipboard(text) {
+  navigator.clipboard.writeText(text).then(() => {
+    // Show success feedback
+    const btn = event.target.closest('.btn-copy');
+    const originalHTML = btn.innerHTML;
+
+    btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z"/></svg>';
+    btn.classList.add('copied');
+
+    setTimeout(() => {
+      btn.innerHTML = originalHTML;
+      btn.classList.remove('copied');
+    }, 2000);
+  }).catch(err => {
+    console.error('Copy failed:', err);
+  });
+}
+</script>
+
+<div class="section">
+  <h3>Recent Callbacks</h3>
+  <% if (recentCallbacks.length === 0) { %>
+    <p class="empty-state">No callbacks received yet.</p>
+  <% } else { %>
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Timestamp</th>
+            <th>Route</th>
+            <th>Method</th>
+            <th>IP</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% recentCallbacks.forEach(callback => { %>
+            <tr>
+              <td><%= moment(callback.timestamp).tz(timezone).format('YYYY-MM-DD HH:mm:ss') %></td>
+              <td><code><%= callback.route %></code></td>
+              <td><span class="badge badge-<%= callback.method.toLowerCase() %>"><%= callback.method %></span></td>
+              <td><%= callback.ip %></td>
+              <td>
+                <a href="/callbacks/<%= callback.id %>" class="btn btn-sm">View</a>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+    <p class="text-center">
+      <a href="/callbacks" class="btn">View All Callbacks</a>
+    </p>
+  <% } %>
+</div>

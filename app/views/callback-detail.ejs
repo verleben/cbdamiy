@@ -1,0 +1,87 @@
+<h2>Callback Detail</h2>
+
+<div class="section">
+  <div class="detail-header">
+    <a href="/callbacks" class="btn btn-secondary">Back to List</a>
+    <button class="btn btn-danger" onclick="deleteCallback('<%= callback.id %>')">Delete</button>
+  </div>
+
+  <div class="detail-section">
+    <h3>Basic Information</h3>
+    <table class="detail-table">
+      <tr>
+        <th>ID:</th>
+        <td><code><%= callback.id %></code></td>
+      </tr>
+      <tr>
+        <th>Timestamp:</th>
+        <td><%= moment(callback.timestamp).tz(timezone).format('YYYY-MM-DD HH:mm:ss z') %></td>
+      </tr>
+      <tr>
+        <th>Route:</th>
+        <td><code><%= callback.route %></code></td>
+      </tr>
+      <tr>
+        <th>Method:</th>
+        <td><span class="badge badge-<%= callback.method.toLowerCase() %>"><%= callback.method %></span></td>
+      </tr>
+      <tr>
+        <th>IP Address:</th>
+        <td><%= callback.ip %></td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="detail-section">
+    <h3>Headers</h3>
+    <pre class="json-display"><%= JSON.stringify(callback.headers, null, 2) %></pre>
+  </div>
+
+  <div class="detail-section">
+    <h3>Query Parameters</h3>
+    <%
+      const hasQuery = callback.query && Object.keys(callback.query).length > 0;
+    %>
+    <% if (hasQuery) { %>
+      <pre class="json-display"><%= JSON.stringify(callback.query, null, 2) %></pre>
+    <% } else { %>
+      <p class="empty-state">No query parameters</p>
+    <% } %>
+  </div>
+
+  <div class="detail-section">
+    <h3>Body</h3>
+    <%
+      const hasBody = callback.body && Object.keys(callback.body).length > 0;
+    %>
+    <% if (hasBody) { %>
+      <pre class="json-display"><%= JSON.stringify(callback.body, null, 2) %></pre>
+    <% } else { %>
+      <p class="empty-state">No body data</p>
+    <% } %>
+  </div>
+</div>
+
+<script>
+function deleteCallback(id) {
+  if (!confirm('Are you sure you want to delete this callback?')) {
+    return;
+  }
+
+  fetch(`/api/callbacks/${id}`, {
+    method: 'DELETE'
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.success) {
+      window.location.href = '/callbacks';
+    } else {
+      alert('Error deleting callback: ' + data.message);
+    }
+  })
+  .catch(err => {
+    alert('Error deleting callback');
+    console.error(err);
+  });
+}
+</script>
