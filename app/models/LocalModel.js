@@ -124,19 +124,59 @@ class LocalModel extends BaseModel {
     };
   }
 
-  async getCallbackById(id) {
-    const callbacks = await this._readTodayCallbacks();
+  async getCallbackById(id, date = null) {
+    let callbacks;
+
+    if (date) {
+      // Read specific date file
+      const fileName = moment(date).tz(this.timezone).format('YYYY-MM-DD') + '.json';
+      const filePath = path.join(this.dataDir, 'callbacks', fileName);
+
+      try {
+        const data = await fs.readFile(filePath, 'utf8');
+        callbacks = JSON.parse(data);
+      } catch (error) {
+        if (error.code === 'ENOENT') {
+          return null;
+        }
+        throw error;
+      }
+    } else {
+      callbacks = await this._readTodayCallbacks();
+    }
+
     return callbacks.find(cb => cb.id === id) || null;
   }
 
-  async deleteCallback(id) {
-    const callbacks = await this._readTodayCallbacks();
+  async deleteCallback(id, date = null) {
+    let callbacks;
+    let filePath;
+
+    if (date) {
+      // Read specific date file
+      const fileName = moment(date).tz(this.timezone).format('YYYY-MM-DD') + '.json';
+      filePath = path.join(this.dataDir, 'callbacks', fileName);
+
+      try {
+        const data = await fs.readFile(filePath, 'utf8');
+        callbacks = JSON.parse(data);
+      } catch (error) {
+        if (error.code === 'ENOENT') {
+          return false;
+        }
+        throw error;
+      }
+    } else {
+      callbacks = await this._readTodayCallbacks();
+      filePath = await this._getTodayFilePath();
+    }
+
     const index = callbacks.findIndex(cb => cb.id === id);
 
     if (index === -1) return false;
 
     callbacks.splice(index, 1);
-    await this._writeTodayCallbacks(callbacks);
+    await fs.writeFile(filePath, JSON.stringify(callbacks, null, 2));
 
     return true;
   }

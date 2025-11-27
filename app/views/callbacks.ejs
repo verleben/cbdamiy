@@ -65,8 +65,11 @@
                 <%= hasBody ? 'Yes' : 'No' %>
               </td>
               <td>
-                <a href="/callbacks/<%= callback.id %>" class="btn btn-sm">View</a>
-                <button class="btn btn-sm btn-danger" onclick="deleteCallback('<%= callback.id %>')">Delete</button>
+                <%
+                  const callbackDate = moment(callback.timestamp).tz(timezone).format('YYYY-MM-DD');
+                %>
+                <a href="/callbacks/<%= callbackDate %>/<%= callback.id %>" class="btn btn-sm">View</a>
+                <button class="btn btn-sm btn-danger" onclick="deleteCallback('<%= callback.id %>', '<%= callbackDate %>')">Delete</button>
               </td>
             </tr>
           <% }) %>
@@ -91,12 +94,14 @@
 </div>
 
 <script>
-function deleteCallback(id) {
+function deleteCallback(id, date) {
   if (!confirm('Are you sure you want to delete this callback?')) {
     return;
   }
 
-  fetch(`/api/callbacks/${id}`, {
+  const url = date ? `/api/callbacks/${id}?date=${date}` : `/api/callbacks/${id}`;
+
+  fetch(url, {
     method: 'DELETE'
   })
   .then(res => res.json())

@@ -63,8 +63,9 @@ class CallbackController {
     try {
       const model = getModel();
       const { id } = req.params;
+      const { date } = req.query;
 
-      const callback = await model.getCallbackById(id);
+      const callback = await model.getCallbackById(id, date);
 
       if (!callback) {
         return res.status(404).json({
@@ -91,8 +92,9 @@ class CallbackController {
     try {
       const model = getModel();
       const { id } = req.params;
+      const { date } = req.query;
 
-      const deleted = await model.deleteCallback(id);
+      const deleted = await model.deleteCallback(id, date);
 
       if (!deleted) {
         return res.status(404).json({

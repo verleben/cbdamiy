@@ -73,9 +73,9 @@ class WebController {
   async viewCallbackDetail(req, res) {
     try {
       const model = getModel();
-      const { id } = req.params;
+      const { date, id } = req.params;
 
-      const callback = await model.getCallbackById(id);
+      const callback = await model.getCallbackById(id, date);
 
       if (!callback) {
         return res.status(404).send('Callback not found');

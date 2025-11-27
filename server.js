@@ -77,7 +77,7 @@ model.init().then(() => {
 // Web Routes (with IP whitelist)
 app.get("/", ipWhitelist, webController.dashboard);
 app.get("/callbacks", ipWhitelist, webController.viewCallbacks);
-app.get("/callbacks/:id", ipWhitelist, webController.viewCallbackDetail);
+app.get("/callbacks/:date/:id", ipWhitelist, webController.viewCallbackDetail);
 app.get("/routes", ipWhitelist, webController.manageRoutes);
 
 // API Routes - Route Management (with IP whitelist)
@@ -89,7 +89,7 @@ app.delete("/api/routes/:id", ipWhitelist, routeController.deleteRoute);
 // API Routes - Callback Management (with IP whitelist)
 app.get("/api/callbacks", ipWhitelist, callbackController.getCallbacks);
 app.get("/api/callbacks/:id", ipWhitelist, callbackController.getCallbackById);
-app.delete("/api/callbacks/:id", ipWhitelist, callbackController.deleteCallback);
+app.delete("/api/callbacks/:date/:id", ipWhitelist, callbackController.deleteCallback);
 
 // Dynamic callback routes - Load routes and create handlers
 async function setupDynamicRoutes() {
