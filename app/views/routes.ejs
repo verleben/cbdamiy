@@ -111,23 +111,58 @@
 </div>
 
 <script>
-// Copy to Clipboard
+// Copy to Clipboard with fallback
 function copyToClipboard(text) {
-  navigator.clipboard.writeText(text).then(() => {
-    // Show success feedback
-    const btn = event.target.closest('.btn-copy');
-    const originalHTML = btn.innerHTML;
+  const btn = event.target.closest('.btn-copy');
+  const originalHTML = btn.innerHTML;
 
-    btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z"/></svg>';
-    btn.classList.add('copied');
+  // Try modern clipboard API first
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(() => {
+      showCopySuccess(btn, originalHTML);
+    }).catch(err => {
+      // Fallback if clipboard API fails
+      fallbackCopy(text, btn, originalHTML);
+    });
+  } else {
+    // Use fallback for older browsers or non-secure contexts
+    fallbackCopy(text, btn, originalHTML);
+  }
+}
 
-    setTimeout(() => {
-      btn.innerHTML = originalHTML;
-      btn.classList.remove('copied');
-    }, 2000);
-  }).catch(err => {
+function fallbackCopy(text, btn, originalHTML) {
+  const textArea = document.createElement('textarea');
+  textArea.value = text;
+  textArea.style.position = 'fixed';
+  textArea.style.left = '-999999px';
+  textArea.style.top = '-999999px';
+  document.body.appendChild(textArea);
+  textArea.focus();
+  textArea.select();
+
+  try {
+    const successful = document.execCommand('copy');
+    if (successful) {
+      showCopySuccess(btn, originalHTML);
+    } else {
+      alert('Failed to copy to clipboard');
+    }
+  } catch (err) {
     console.error('Copy failed:', err);
-  });
+    alert('Failed to copy to clipboard');
+  }
+
+  document.body.removeChild(textArea);
+}
+
+function showCopySuccess(btn, originalHTML) {
+  btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z"/></svg>';
+  btn.classList.add('copied');
+
+  setTimeout(() => {
+    btn.innerHTML = originalHTML;
+    btn.classList.remove('copied');
+  }, 2000);
 }
 
 // Add Route
