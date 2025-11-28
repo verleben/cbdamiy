@@ -136,7 +136,7 @@ function showCopySuccess(btn, originalHTML) {
               <td><span class="badge badge-<%= callback.method.toLowerCase() %>"><%= callback.method %></span></td>
               <td><%= callback.ip %></td>
               <td>
-                <a href="/callbacks/<%= moment(route.created_at || route.createdAt).tz(timezone).format('YYYY-MM-DD') %>/<%= callback.id %>" class="btn btn-sm">View</a>
+                <a href="/callbacks/<%= moment(callback.created_at || callback.createdAt).tz(timezone).format('YYYY-MM-DD') %>/<%= callback.id %>" class="btn btn-sm">View</a>
               </td>
             </tr>
           <% }) %>
